@@ -23,7 +23,7 @@ def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, m
     deno =  args.batch_size * np.prod(args.obs) * np.log(2.)        
     loss_tracker = mean_tracker()
     
-    for batch_idx, item in enumerate(tqdm(data_loader)):
+    for batch_idx, item in enumerate(tqdm(data_loader), , position=0):
         model_input, _ = item
         model_input = model_input.to(device)
         model_output = model(model_input)
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
     scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=args.lr_decay)
     
-    for epoch in tqdm(range(args.max_epochs)):
+    for epoch in tqdm(range(args.max_epochs), position=0):
         train_or_test(model = model, 
                       data_loader = train_loader, 
                       optimizer = optimizer, 
