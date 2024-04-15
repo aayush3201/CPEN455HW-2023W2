@@ -11,6 +11,7 @@ from dataset import *
 from tqdm import tqdm
 from pprint import pprint
 import argparse
+import random
 from pytorch_fid.fid_score import calculate_fid_given_paths
 
 
@@ -226,6 +227,9 @@ if __name__ == '__main__':
         
         if epoch % args.sampling_interval == 0:
             print('......sampling......')
+            labels_t = torch.zeros(args.sample_batch_size)
+            for i in range(len(labels_t)):
+                labels_t[i] = random.randint(0,3)
             sample_t = sample(model, labels_t, args.sample_batch_size, args.obs, sample_op)
             sample_t = rescaling_inv(sample_t)
             save_images(sample_t, args.sample_dir)
