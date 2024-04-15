@@ -193,6 +193,7 @@ if __name__ == '__main__':
     scheduler = lr_scheduler.StepLR(optimizer, step_size=1, gamma=args.lr_decay)
     
     for epoch in tqdm(range(args.max_epochs), position=0):
+        print(f"Epoch: {epoch}")
         train_or_test(model = model, 
                       data_loader = train_loader, 
                       optimizer = optimizer, 
