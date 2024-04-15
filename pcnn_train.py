@@ -23,10 +23,13 @@ def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, m
     deno =  args.batch_size * np.prod(args.obs) * np.log(2.)        
     loss_tracker = mean_tracker()
     
-    for batch_idx, item in enumerate(tqdm(data_loader), , position=0):
-        model_input, _ = item
+    for batch_idx, item in enumerate(tqdm(data_loader, position=0)):
+        model_input, labels = item
+        labels_t = torch.zeros(len(labels), device=device) 
+        for i in range(len(labels)):
+            labels_t[i] = int(labels[i][-1])
         model_input = model_input.to(device)
-        model_output = model(model_input)
+        model_output = model(model_input, labels_t)
         loss = loss_op(model_input, model_output)
         loss_tracker.update(loss.item()/deno)
         if mode == 'training':

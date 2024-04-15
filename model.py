@@ -50,6 +50,24 @@ class PixelCNNLayer_down(nn.Module):
         return u, ul
 
 
+class LabelEncoding(nn.Module):
+    def __init__(self, num_classes, h, w):
+        super().__init__()
+        self.W = nn.Parameter(torch.empty((num_classes, h, w)))
+        nn.init.normal_(self.W)
+
+    def forward(self, x, labels):
+        """
+        args:
+            x: shape B x D x H x W
+        returns:
+            out: shape B x D x H x W
+        """
+        out = torch.zeros_like(x, device=x.device)
+        for b in range(len(x)):   
+          out[b] = torch.add(x[b], self.W[labels[b].int()].unsqueeze(0))
+        return out
+
 class PixelCNN(nn.Module):
     def __init__(self, nr_resnet=5, nr_filters=80, nr_logistic_mix=10,
                     resnet_nonlinearity='concat_elu', input_channels=3):
@@ -95,9 +113,10 @@ class PixelCNN(nn.Module):
         num_mix = 3 if self.input_channels == 1 else 10
         self.nin_out = nin(nr_filters, num_mix * nr_logistic_mix)
         self.init_padding = None
+        self.label_encoding = LabelEncoding(4, 32, 32) 
 
 
-    def forward(self, x, sample=False):
+    def forward(self, x, labels, sample=False):
         # similar as done in the tf repo :
         if self.init_padding is not sample:
             xs = [int(y) for y in x.size()]
@@ -142,6 +161,8 @@ class PixelCNN(nn.Module):
 
         assert len(u_list) == len(ul_list) == 0, pdb.set_trace()
 
+        # Label Encoding
+        x_out = self.label_encoding(x_out, labels)
         return x_out
     
     
