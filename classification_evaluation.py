@@ -19,6 +19,7 @@ NUM_CLASSES = len(my_bidict)
 # And get the predicted label, which is a tensor of shape (batch_size,)
 # Begin of your code
 def get_label(model, model_input, device):
+    p_c = 1/NUM_CLASSES # P(c = k)
     answer = model(model_input, device)
     return answer
 # End of your code
@@ -64,8 +65,7 @@ if __name__ == '__main__':
     #Write your code here
     #You should replace the random classifier with your trained model
     #Begin of your code
-    # model = PixelCNN(nr_resnet=1, nr_filters=40, nr_logistic_mix=5, input_channels=3)
-    model = random_classifier(NUM_CLASSES)
+    model = PixelCNN(nr_resnet=1, nr_filters=40, nr_logistic_mix=5, input_channels=3)
     #End of your code
     
     model = model.to(device)

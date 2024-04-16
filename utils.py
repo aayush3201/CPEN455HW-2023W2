@@ -97,6 +97,11 @@ def discretized_mix_logistic_loss(x, l):
     cond             = (x < -0.999).float()
     log_probs        = cond * log_cdf_plus + (1. - cond) * inner_out
     log_probs        = torch.sum(log_probs, dim=3) + log_prob_from_logits(logit_probs)
+
+    print('SHAPES')
+    print(log_probs.shape)
+    print(log_sum_exp(log_probs).shape)
+    print(torch.sum(log_sum_exp(log_probs)).shape)
     
     return -torch.sum(log_sum_exp(log_probs))
 
