@@ -162,7 +162,7 @@ class PixelCNN(nn.Module):
         assert len(u_list) == len(ul_list) == 0, pdb.set_trace()
 
         # Label Encoding
-        x_out = self.label_encoding(x_out, labels)
+        # x_out = self.label_encoding(x_out, labels)
         return x_out
     
     
