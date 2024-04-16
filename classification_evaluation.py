@@ -64,6 +64,7 @@ if __name__ == '__main__':
     #Write your code here
     #You should replace the random classifier with your trained model
     #Begin of your code
+    # model = PixelCNN(nr_resnet=1, nr_filters=40, nr_logistic_mix=5, input_channels=3)
     model = random_classifier(NUM_CLASSES)
     #End of your code
     
