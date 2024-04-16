@@ -19,8 +19,20 @@ NUM_CLASSES = len(my_bidict)
 # And get the predicted label, which is a tensor of shape (batch_size,)
 # Begin of your code
 def get_label(model, model_input, device):
-    p_c = 1/NUM_CLASSES # P(c = k)
-    answer = model(model_input, device)
+    losses_per_label = torch.zeros(NUM_CLASSES, len(model_input), len(model_input[0][0]), len(model_input[0][0][0]), device=device)
+    for i in range(NUM_CLASSES):
+        labels_t = torch.zeros(len(model_input), device=device)
+        for j in range(len(labels_t)):
+            labels_t[j] = i
+        answer = model(model_input, labels_t)
+        loss_op = lambda real, fake : discretized_mix_logistic_loss(real, fake)
+        losses_per_label[i] = loss_op(model_input, answer)
+    log_sum_pxk = torch.log_sum_exp(losses_per_label, dim=0) # log(sum(P(x|k)))
+    probabilities = []
+    for i in range(NUM_CLASSES):
+        log_p_ix = torch.sum(losses_per_label[i] - log_sum_pxk, dim=0) # log P(i|x)
+        probabilities.append(torch.exp(log_p_ix))
+    print(probabilities)
     return answer
 # End of your code
 
