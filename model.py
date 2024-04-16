@@ -53,7 +53,7 @@ class PixelCNNLayer_down(nn.Module):
 class LabelEncoding(nn.Module):
     def __init__(self, num_classes, h, w):
         super().__init__()
-        self.W = nn.Parameter(torch.empty((num_classes, h, w)))
+        self.W = nn.Parameter(torch.empty((num_classes, dim)))
         nn.init.normal_(self.W)
 
     def forward(self, x, labels):
@@ -65,7 +65,7 @@ class LabelEncoding(nn.Module):
         """
         out = torch.zeros_like(x, device=x.device)
         for b in range(len(x)):   
-          out[b] = torch.add(x[b], self.W[labels[b].int()].unsqueeze(0))
+          out[b] = torch.add(x[b].permute(1,2,0), self.W[labels[b].int()].unsqueeze(0).unsqueeze(0)).permute(2,0,1)
         return out
 
 class PixelCNN(nn.Module):
@@ -113,7 +113,7 @@ class PixelCNN(nn.Module):
         num_mix = 3 if self.input_channels == 1 else 10
         self.nin_out = nin(nr_filters, num_mix * nr_logistic_mix)
         self.init_padding = None
-        self.label_encoding = LabelEncoding(4, 32, 32) 
+        self.label_encoding = LabelEncoding(4, 50) 
 
 
     def forward(self, x, labels, sample=False):
@@ -162,7 +162,7 @@ class PixelCNN(nn.Module):
         assert len(u_list) == len(ul_list) == 0, pdb.set_trace()
 
         # Label Encoding
-        # x_out = self.label_encoding(x_out, labels)
+        x_out = self.label_encoding(x_out, labels)
         return x_out
     
     
