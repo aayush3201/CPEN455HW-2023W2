@@ -51,7 +51,7 @@ class PixelCNNLayer_down(nn.Module):
 
 
 class LabelEncoding(nn.Module):
-    def __init__(self, num_classes, h, w):
+    def __init__(self, num_classes, dim):
         super().__init__()
         self.W = nn.Parameter(torch.empty((num_classes, dim)))
         nn.init.normal_(self.W)
