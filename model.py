@@ -113,7 +113,7 @@ class PixelCNN(nn.Module):
         num_mix = 3 if self.input_channels == 1 else 10
         self.nin_out = nin(nr_filters, num_mix * nr_logistic_mix)
         self.init_padding = None
-        self.label_encoding = LabelEncoding(4, 50) 
+        self.label_encoding = LabelEncoding(4, 3) 
 
 
     def forward(self, x, labels, sample=False):
@@ -128,6 +128,9 @@ class PixelCNN(nn.Module):
             padding = Variable(torch.ones(xs[0], 1, xs[2], xs[3]), requires_grad=False)
             padding = padding.cuda() if x.is_cuda else padding
             x = torch.cat((x, padding), 1)
+
+        # Label Encoding
+        x = self.label_encoding(x, labels)
 
         ###      UP PASS    ###
         x = x if sample else torch.cat((x, self.init_padding), 1)
@@ -161,8 +164,6 @@ class PixelCNN(nn.Module):
 
         assert len(u_list) == len(ul_list) == 0, pdb.set_trace()
 
-        # Label Encoding
-        x_out = self.label_encoding(x_out, labels)
         return x_out
     
     
