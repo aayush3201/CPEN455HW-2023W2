@@ -32,7 +32,7 @@ def train_or_test(model, data_loader, optimizer, loss_op, device, args, epoch, m
         model_input = model_input.to(device)
         model_output = model(model_input, labels_t)
         loss_per_image = loss_op(model_input, model_output)
-        loss = torch.sum(loss_per_image)
+        loss = - torch.sum(loss_per_image)
         loss_tracker.update(loss.item()/deno)
         if mode == 'training':
             optimizer.zero_grad()

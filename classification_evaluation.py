@@ -19,6 +19,7 @@ NUM_CLASSES = len(my_bidict)
 # And get the predicted label, which is a tensor of shape (batch_size,)
 # Begin of your code
 def get_label(model, model_input, device):
+    print(f"Batches: {len(model_input)}")
     losses_per_label = torch.zeros(NUM_CLASSES, len(model_input), len(model_input[0][0]), len(model_input[0][0][0]), device=device)
     for i in range(NUM_CLASSES):
         labels_t = torch.zeros(len(model_input), device=device)
@@ -30,9 +31,18 @@ def get_label(model, model_input, device):
     log_sum_pxk = torch.logsumexp(losses_per_label, dim=0) # log(sum(P(x|k)))
     probabilities = []
     for i in range(NUM_CLASSES):
-        log_p_ix = torch.sum(losses_per_label[i] - log_sum_pxk, dim=0) # log P(i|x)
-        probabilities.append(torch.exp(log_p_ix))
-    print(probabilities)
+        # print(f"{losses_per_label[i][0][0][0]} - {log_sum_pxk[0][0][0]}")
+        log_p_ix = losses_per_label[i] - log_sum_pxk # log P(i|x)
+        probabilities.append(torch.logsumexp(log_p_ix, dim=(1,2)))
+    answer = torch.zeros(len(model_input), device=device)
+    for i in range(len(answer)):
+      highest = probabilities[0][i]
+      index = 0
+      for j in range(NUM_CLASSES):
+        if probabilities[j][i] > highest:
+          highest = probabilities[j][i]
+          index = j
+      answer[i] = index  
     return answer
 # End of your code
 
