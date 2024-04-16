@@ -27,7 +27,7 @@ def get_label(model, model_input, device):
         answer = model(model_input, labels_t)
         loss_op = lambda real, fake : discretized_mix_logistic_loss(real, fake)
         losses_per_label[i] = loss_op(model_input, answer)
-    log_sum_pxk = torch.log_sum_exp(losses_per_label, dim=0) # log(sum(P(x|k)))
+    log_sum_pxk = torch.logsumexp(losses_per_label, dim=0) # log(sum(P(x|k)))
     probabilities = []
     for i in range(NUM_CLASSES):
         log_p_ix = torch.sum(losses_per_label[i] - log_sum_pxk, dim=0) # log P(i|x)
