@@ -27,15 +27,12 @@ def get_label(model, model_input, device, get_logits=False):
         answer = model(model_input, labels_t)
         loss_op = lambda real, fake : discretized_mix_logistic_loss(real, fake)
         losses_per_label[i] = loss_op(model_input, answer)
-
     log_sum_pxk = torch.logsumexp(losses_per_label, dim=0) # log(sum(P(x|k)))
-    logits = torch.zeros(NUM_CLASSES, len(model_input), device='cpu')
+    logits = []
     for i in range(NUM_CLASSES):
         log_p_ix = losses_per_label[i] - log_sum_pxk # log P(i|x)
-        logits[i] = torch.logsumexp(log_p_ix, dim=(1,2)).to('cpu')
-
+        logits.append(torch.logsumexp(log_p_ix, dim=(1,2)))
     answer = torch.zeros(len(model_input), device=device)
-
     for i in range(len(answer)):
       highest = logits[0][i]
       index = 0
@@ -44,10 +41,9 @@ def get_label(model, model_input, device, get_logits=False):
           highest = logits[j][i]
           index = j
       answer[i] = index
-
     if not get_logits:   
         return answer
-    else: return answer, logits.permute(1,0)
+    else return answer, torch.tensor(logits).permute(1,0)
 # End of your code
 
 def classifier(model, data_loader, device):
