@@ -43,7 +43,7 @@ def get_label(model, model_input, device, get_logits=False):
       answer[i] = index
     if not get_logits:   
         return answer
-    else return answer, torch.tensor(logits).permute(1,0)
+    else: return answer, torch.tensor(logits).permute(1,0)
 # End of your code
 
 def classifier(model, data_loader, device):
