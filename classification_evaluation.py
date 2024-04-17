@@ -31,7 +31,7 @@ def get_label(model, model_input, device, get_logits=False):
     logits = []
     for i in range(NUM_CLASSES):
         log_p_ix = losses_per_label[i] - log_sum_pxk # log P(i|x)
-        logits.append(torch.logsumexp(log_p_ix, dim=(1,2)))
+        logits.append(torch.logsumexp(log_p_ix, dim=(1,2)).tolist())
     answer = torch.zeros(len(model_input), device=device)
     for i in range(len(answer)):
       highest = logits[0][i]
