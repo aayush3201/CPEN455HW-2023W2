@@ -56,7 +56,7 @@ if __name__ == '__main__':
 
     paths = [gen_data_dir, ref_data_dir]
     print("Begin sampling!")
-    my_sample(model=model, gen_data_dir=gen_data_dir)
+    my_sample(model=model, gen_data_dir=gen_data_dir, sample_batch_size=45)
     fid_score = calculate_fid_given_paths(paths, BATCH_SIZE, device, dims=192)
     hugging_csv = hugging_csv + f"fid,{fid_score}"
 
