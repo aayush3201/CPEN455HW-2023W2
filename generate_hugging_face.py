@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
     # Saving logits        
     with open('test_logits.npy', 'w') as f:
-        np.save(f, logits.to('cpu'))
+        np.save(f, logits)
 
     paths = [gen_data_dir, ref_data_dir]
     print("Begin sampling!")
