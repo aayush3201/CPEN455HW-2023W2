@@ -19,7 +19,7 @@ my_bidict = bidict({'Class0': 0,
                     'Class3': 3})
 
 class CPEN455Dataset(Dataset):
-    def __init__(self, root_dir, mode='train', transform=None):
+    def __init__(self, root_dir, mode='train', transform=None, include_paths=False):
         """
         Args:
             root_dir (string): Directory with all the images and labels.
@@ -36,6 +36,7 @@ class CPEN455Dataset(Dataset):
         # Convert DataFrame to a list of tuples
         self.samples = list(df.itertuples(index=False, name=None))
         self.samples = [(os.path.join(ROOT_DIR, path), label) for path, label in self.samples]
+        self.include_paths = include_paths
         
     def __len__(self):
         return len(self.samples)
@@ -53,7 +54,10 @@ class CPEN455Dataset(Dataset):
             image = replicate_color_channel(image)
         if self.transform:
           image = self.transform(image)
-        return image, category_name
+        if self.include_paths:  
+            return image, category_name, img_path
+        else:
+            return image, category_name
     
     def get_all_images(self, label):
         return [img for img, cat in self.samples if cat == label]
@@ -79,7 +83,7 @@ if __name__ == '__main__':
         dataset = CPEN455Dataset(root_dir='./data', transform=transform_32, mode=mode)
         data_loader = DataLoader(dataset, batch_size = 4, shuffle=True)
         # Sample from the DataLoader
-        for images, categories in tqdm(data_loader):
+        for images, categories, _ in tqdm(data_loader):
             print(images.shape, categories)
             images = torch.round(rescaling_inv(images) * 255).type(torch.uint8)
             show_images(images, categories, mode)

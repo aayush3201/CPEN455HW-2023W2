@@ -64,7 +64,7 @@ class LabelEncoding(nn.Module):
             out: shape B x D x H x W
         """
         out = torch.zeros_like(x, device=x.device)
-        for b in range(len(x)):   
+        for b in range(len(x)):     
           out[b] = torch.add(x[b].permute(1,2,0), self.W[labels[b].int()].unsqueeze(0).unsqueeze(0)).permute(2,0,1)
         return out
 
