@@ -46,13 +46,12 @@ if __name__ == '__main__':
         if logits == None:
             logits = curr_logits
         else: logits = torch.cat((logits, curr_logits), 0)
-        print(logits.shape)
         # CSV row
         for i in range(len(answer)):
             hugging_csv = hugging_csv + f"{img_path[i].split('/')[-1]},{int(answer[i])}\n"
 
     # Saving logits        
-    with open('test_logits.npy', 'w') as f:
+    with open('test_logits.npy', 'wb') as f:
         np.save(f, logits)
 
     paths = [gen_data_dir, ref_data_dir]
