@@ -18,7 +18,7 @@ NUM_CLASSES = len(my_bidict)
 # Write your code here
 # And get the predicted label, which is a tensor of shape (batch_size,)
 # Begin of your code
-def get_label(model, model_input, device):
+def get_label(model, model_input, device, get_logits=False):
     losses_per_label = torch.zeros(NUM_CLASSES, len(model_input), len(model_input[0][0]), len(model_input[0][0][0]), device=device)
     for i in range(NUM_CLASSES):
         labels_t = torch.zeros(len(model_input), device=device)
@@ -27,21 +27,27 @@ def get_label(model, model_input, device):
         answer = model(model_input, labels_t)
         loss_op = lambda real, fake : discretized_mix_logistic_loss(real, fake)
         losses_per_label[i] = loss_op(model_input, answer)
+
     log_sum_pxk = torch.logsumexp(losses_per_label, dim=0) # log(sum(P(x|k)))
-    probabilities = []
+    logits = torch.zeros(NUM_CLASSES, len(model_input), device=device)
     for i in range(NUM_CLASSES):
         log_p_ix = losses_per_label[i] - log_sum_pxk # log P(i|x)
-        probabilities.append(torch.logsumexp(log_p_ix, dim=(1,2)))
+        logits[i] = torch.logsumexp(log_p_ix, dim=(1,2))
+
     answer = torch.zeros(len(model_input), device=device)
+
     for i in range(len(answer)):
-      highest = probabilities[0][i]
+      highest = logits[0][i]
       index = 0
       for j in range(NUM_CLASSES):
-        if probabilities[j][i] > highest:
-          highest = probabilities[j][i]
+        if logits[j][i] > highest:
+          highest = logits[j][i]
           index = j
-      answer[i] = index  
-    return answer
+      answer[i] = index
+
+    if not get_logits:   
+        return answer
+    else return answer, logits
 # End of your code
 
 def classifier(model, data_loader, device):

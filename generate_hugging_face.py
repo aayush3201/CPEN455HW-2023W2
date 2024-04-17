@@ -13,6 +13,7 @@ import argparse
 import os
 from pytorch_fid.fid_score import calculate_fid_given_paths
 from generation_evaluation import my_sample
+import numpy as np
 NUM_CLASSES = len(my_bidict)
 
 if __name__ == '__main__':
@@ -27,7 +28,7 @@ if __name__ == '__main__':
     dataloader = torch.utils.data.DataLoader(CPEN455Dataset(root_dir='data', 
                                                             mode = 'test', 
                                                             transform=ds_transforms, include_paths=True), 
-                                             batch_size=32, 
+                                             batch_size=519, # Gets all 519 test images at once 
                                              shuffle=False, 
                                              **kwargs)
 
@@ -37,13 +38,16 @@ if __name__ == '__main__':
     model.eval()
     print('model parameters loaded')
     hugging_csv = 'id,label\n' 
+    logits = None
     for batch_idx, item in enumerate(tqdm(dataloader)):
         model_input, categories, img_path = item
         model_input = model_input.to(device)
-        answer = get_label(model, model_input, device)
+        answer, logits = get_label(model, model_input, device, get_logits=True)
+        print(logits.shape)
         for i in range(len(answer)):
             hugging_csv = hugging_csv + f"{img_path[i].split('/')[-1]},{int(answer[i])}\n"
-
+    with open('test_logits.npy', 'w') as f:
+        np.save(f, logits)
     paths = [gen_data_dir, ref_data_dir]
     print("Begin sampling!")
     my_sample(model=model, gen_data_dir=gen_data_dir)
