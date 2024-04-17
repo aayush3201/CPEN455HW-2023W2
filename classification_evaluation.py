@@ -29,10 +29,10 @@ def get_label(model, model_input, device, get_logits=False):
         losses_per_label[i] = loss_op(model_input, answer)
 
     log_sum_pxk = torch.logsumexp(losses_per_label, dim=0) # log(sum(P(x|k)))
-    logits = torch.zeros(NUM_CLASSES, len(model_input), device=device)
+    logits = torch.zeros(NUM_CLASSES, len(model_input), device='cpu')
     for i in range(NUM_CLASSES):
         log_p_ix = losses_per_label[i] - log_sum_pxk # log P(i|x)
-        logits[i] = torch.logsumexp(log_p_ix, dim=(1,2))
+        logits[i] = torch.logsumexp(log_p_ix, dim=(1,2)).to('cpu')
 
     answer = torch.zeros(len(model_input), device=device)
 
@@ -47,7 +47,7 @@ def get_label(model, model_input, device, get_logits=False):
 
     if not get_logits:   
         return answer
-    else: return answer, logits.permute(1,0).to('cpu')
+    else: return answer, logits.permute(1,0)
 # End of your code
 
 def classifier(model, data_loader, device):
