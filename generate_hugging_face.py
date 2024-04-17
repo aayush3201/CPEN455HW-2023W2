@@ -23,15 +23,15 @@ if __name__ == '__main__':
     model.load_state_dict(torch.load('models/conditional_pixelcnn.pth'))
     model.eval()
     print('model parameters loaded')
-    hugging_csv = '' 
+    hugging_csv = 'id, label\n' 
     for batch_idx, item in enumerate(tqdm(dataloader)):
         model_input, categories, img_path = item
         model_input = model_input.to(device)
         answer = get_label(model, model_input, device)
         for i in range(len(answer)):
-            hugging_csv = hugging_csv + f"{img_path[i]}, {answer[i]}\n"
+            hugging_csv = hugging_csv + f"{img_path[i].split('/').[-1]},{int(answer[i])}\n"
     hugging_csv = hugging_csv + 'fid, 455'
-    
+
     f = open("hugging_face.csv", "w")
     f.write(hugging_csv)
     f.close()
