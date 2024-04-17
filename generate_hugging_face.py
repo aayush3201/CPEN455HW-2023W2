@@ -45,7 +45,7 @@ if __name__ == '__main__':
         answer, curr_logits = get_label(model, model_input, device, get_logits=True)
         if logits == None:
             logits = curr_logits
-        else: logits = torch.stack((logits, curr_logits), 0)
+        else: logits = torch.cat((logits, curr_logits), 0)
         # CSV row
         for i in range(len(answer)):
             hugging_csv = hugging_csv + f"{img_path[i].split('/')[-1]},{int(answer[i])}\n"

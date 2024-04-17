@@ -47,7 +47,7 @@ def get_label(model, model_input, device, get_logits=False):
 
     if not get_logits:   
         return answer
-    else: return answer, logits
+    else: return answer, logits.permute(1,0)
 # End of your code
 
 def classifier(model, data_loader, device):
