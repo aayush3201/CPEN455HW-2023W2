@@ -77,6 +77,8 @@ if __name__ == '__main__':
                         help='Number of filters to use across the model. Higher = larger model.')
     parser.add_argument('-m', '--nr_logistic_mix', type=int, default=10,
                         help='Number of logistic components in the mixture. Higher = more flexible model')
+    parser.add_argument('-pos', '--embed_position', type=str, default='start',
+                        help='Embed labels at the beginning or end')
     parser.add_argument('-l', '--lr', type=float,
                         default=0.0002, help='Base learning rate')
     parser.add_argument('-e', '--lr_decay', type=float, default=0.999995,

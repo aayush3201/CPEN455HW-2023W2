@@ -70,7 +70,8 @@ class LabelEncoding(nn.Module):
 
 class PixelCNN(nn.Module):
     def __init__(self, nr_resnet=5, nr_filters=80, nr_logistic_mix=10,
-                    resnet_nonlinearity='concat_elu', input_channels=3):
+                    resnet_nonlinearity='concat_elu', input_channels=3,
+                    embed_position='start'):
         super(PixelCNN, self).__init__()
         if resnet_nonlinearity == 'concat_elu' :
             self.resnet_nonlinearity = lambda x : concat_elu(x)
@@ -80,6 +81,7 @@ class PixelCNN(nn.Module):
         self.nr_filters = nr_filters
         self.input_channels = input_channels
         self.nr_logistic_mix = nr_logistic_mix
+        self.embed_position = embed_position
         self.right_shift_pad = nn.ZeroPad2d((1, 0, 0, 0))
         self.down_shift_pad  = nn.ZeroPad2d((0, 0, 1, 0))
 
@@ -113,12 +115,16 @@ class PixelCNN(nn.Module):
         num_mix = 3 if self.input_channels == 1 else 10
         self.nin_out = nin(nr_filters, num_mix * nr_logistic_mix)
         self.init_padding = None
-        self.label_encoding = LabelEncoding(4, 3) 
+        if self.embed_position == 'start':
+            self.label_encoding = LabelEncoding(4, 3)
+        else: self.label_encoding = LabelEncoding(4, 50) 
 
 
     def forward(self, x, labels, sample=False):
-        # Label Encoding
-        x = self.label_encoding(x, labels)
+
+        if self.label_encoding == 'start':
+            # Label Encoding
+            x = self.label_encoding(x, labels)
         
         # similar as done in the tf repo :
         if self.init_padding is not sample:
@@ -163,6 +169,10 @@ class PixelCNN(nn.Module):
         x_out = self.nin_out(F.elu(ul))
 
         assert len(u_list) == len(ul_list) == 0, pdb.set_trace()
+
+        if self.label_encoding != 'start':
+            # Label Encoding
+            x_out = self.label_encoding(x_out, labels)
 
         return x_out
     
