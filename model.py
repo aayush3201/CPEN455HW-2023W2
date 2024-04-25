@@ -117,7 +117,7 @@ class PixelCNN(nn.Module):
         self.init_padding = None
         if self.embed_position == 'start':
             self.label_encoding = LabelEncoding(4, 3)
-        else: self.label_encoding = LabelEncoding(4, 50) 
+        else: self.label_encoding = LabelEncoding(4, nr_logistic_mix*10) 
 
 
     def forward(self, x, labels, sample=False):
